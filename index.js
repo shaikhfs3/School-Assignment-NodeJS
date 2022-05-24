@@ -1,25 +1,24 @@
 var express = require('express');
 var app = express();
 var cors = require('cors');
-//import * as data from "./data.json";
-const Details = require('./data').students;
-
+const fs = require("fs");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.get('/students', function (req, res) {
-    console.log("Details",Details);
-    res.send(Details);
+    let data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+    res.send(data);
 });
 app.put('/students', function (req, res) {
-    const updatedStudent = req.body;
-    const index=Details.findIndex(student=>student.id===req.body.student.id);
-    console.log("index",index);
-    console.log("data",Details[index]=req.body.student);
-    console.log("final",Details);
-
+   let rawdata = fs.readFileSync('data.json');
+    let data= JSON.parse(rawdata);
+    const index = data.findIndex(student => student.id === req.body.student.id);
+    data[index] = req.body.student;
+    fs.writeFileSync('data.json', JSON.stringify(data,null,2));
+    res.status(200).send("Success");
 });
+
 app.listen(8000, function () {
-    console.log('Listening to Port 9000');
+    console.log('Listening to Port 8000');
 });
